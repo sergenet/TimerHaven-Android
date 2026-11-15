@@ -3,7 +3,10 @@ name: Store listing drift
 # Fails when the copy in fastlane/metadata/android and the copy Google Play is
 # actually serving disagree — for example after someone edits a listing in the
 # Play Console, or after a translation is committed but never published.
-# Runs daily, on demand, and on every pull request into main.
+# Runs daily, on demand, and on every pull request into main. The daily and
+# on-demand runs fail on drift; a pull request only reports it, because a PR
+# that edits fastlane copy is expected to differ from Play until that copy is
+# published, and that should not block the merge.
 #
 # Credentials the runner needs
 # ---------------------------
@@ -97,8 +100,10 @@ jobs:
           status=$?
           set -e
           echo "status=$status" >> "$GITHUB_OUTPUT"
+          # Advisory on pull requests, blocking everywhere else.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then level=warning; else level=error; fi
           if [ "$status" -eq 2 ]; then
-            echo "::error title=Drift check could not run::No listing was compared. Check PLAY_SERVICE_ACCOUNT_JSON and the service account's access to the app in Play Console."
+            echo "::$level title=Drift check could not run::No listing was compared. Check PLAY_SERVICE_ACCOUNT_JSON and the service account's access to the app in Play Console."
           fi
 
       - name: Write the drift summary
@@ -106,11 +111,13 @@ jobs:
         run: |
           python - "$RUNNER_TEMP/drift.json" <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           import json
+          import os
           import sys
 
           # The JSON report lists every differing line; the summary stops at
           # this many per field so a full rewrite does not bury the table.
           LIMIT = 10
+          ADVISORY = os.environ.get("GITHUB_EVENT_NAME") == "pull_request"
 
 
           def load(path):
@@ -139,6 +146,10 @@ jobs:
 
           print("**%d of %d listings drifted:** %s\n"
                 % (len(drifted), checked, ", ".join(drifted)))
+          if ADVISORY:
+              print("This is a pull request, so the drift is reported only: it "
+                    "does not fail the check. Publish the listing and the next "
+                    "run will compare clean.\n")
           print("| Locale | Field | Repo | Live | Lines |")
           print("|---|---|--:|--:|--:|")
           for entry in listings:
@@ -177,15 +188,18 @@ jobs:
               print("</details>\n")
           PY
 
-      - name: Fail on drift
+      - name: Report drift
         if: steps.check.outputs.status != '0'
         env:
           STATUS: ${{ steps.check.outputs.status }}
         run: |
+          # Pull requests are advisory: annotate and pass, so an intentional copy
+          # edit is visible without blocking the merge. Every other event fails.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then level=warning; code=0; else level=error; code=1; fi
           if [ "$STATUS" = "2" ]; then
-            echo "::error title=Drift check could not run::No listing was compared, so this run says nothing about drift; see the step above."
-            exit 1
+            echo "::$level title=Drift check could not run::No listing was compared, so this run says nothing about drift; see the step above."
+            exit $code
           fi
           locales=$(python -c 'import json, sys; print(", ".join((json.load(open(sys.argv[1], encoding="utf-8")).get("drifted") or [])))' "$RUNNER_TEMP/drift.json" 2>/dev/null || true)
-          echo "::error title=Store listing drift::fastlane and the live Play listing disagree${locales:+ for $locales}. See the job summary for the differing lines."
-          exit 1
+          echo "::$level title=Store listing drift::fastlane and the live Play listing disagree${locales:+ for $locales}. See the job summary for the differing lines."
+          exit $code
