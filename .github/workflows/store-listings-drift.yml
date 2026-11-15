@@ -14,17 +14,20 @@ name: Store listing drift
 # for this app with at least read access — "View app information and download
 # bulk reports" is enough. The account already used to publish the listings
 # qualifies, so reusing its key is fine; no new service account is required.
-# The key is exchanged for a short-lived token scoped to
+# The auth action writes the key to a credentials file and points gcloud at it,
+# and gcloud then mints a short-lived token scoped to
 #
 #   https://www.googleapis.com/auth/androidpublisher
 #
 # which is the same token `gcloud auth print-access-token` produces by hand for
-# tools/check_store_listings.py. Nothing in this workflow uploads or commits a
-# Play edit, so read access cannot change the store listing.
+# tools/check_store_listings.py. The token is signed locally from the key, so
+# this does not depend on the IAM Service Account Credentials API being enabled
+# on the project. Nothing in this workflow uploads or commits a Play edit, so
+# read access cannot change the store listing.
 #
 # For a keyless setup, replace the auth step with google-github-actions/auth
 # workload identity federation (workload_identity_provider + service_account)
-# and keep the same access_token / access_token_scopes settings.
+# and mint the scoped token with `gcloud auth print-access-token` as below.
 on:
   schedule:
     # Daily at 06:17 UTC, off the hour to avoid the cron rush.
@@ -51,12 +54,23 @@ jobs:
           python-version: "3.12"
 
       - id: auth
-        name: Mint a Play Developer API token
+        name: Load the Play service account
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+          create_credentials_file: true
+
+      - id: token
+        name: Mint a Play Developer API token
+        run: |
+          token=$(gcloud auth print-access-token \
+            --scopes=https://www.googleapis.com/auth/androidpublisher)
+          if [ -z "$token" ]; then
+            echo "::error title=Drift check could not run::gcloud did not return an access token for the service account."
+            exit 1
+          fi
+          echo "::add-mask::$token"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
 
       # The check opens a read-only Play edit, reads all seven listings and
       # deletes the edit again. It exits 0 on a match, 1 on drift and 2 when it
@@ -65,7 +79,7 @@ jobs:
       - id: check
         name: Compare fastlane with the live listings
         env:
-          PLAY_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          PLAY_ACCESS_TOKEN: ${{ steps.token.outputs.token }}
         run: |
           set +e
           python tools/check_store_listings.py --json > "$RUNNER_TEMP/drift.json"
