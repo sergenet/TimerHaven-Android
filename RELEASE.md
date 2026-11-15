@@ -39,9 +39,10 @@ Reasoning and tool details live in [README.md](README.md).
 
 ## 5. Publish listing copy (only if step 2 changed it)
 
-- [ ] Push the copy through the Play Developer API with the same service account: open an edit,
-      `PUT` `edits/<id>/listings/<locale>` for each locale, then commit the edit
-- [ ] `python tools/check_store_listings.py` exits `0` again
+- [ ] `python tools/prepare_release.py --publish` — it opens one Play edit, PUTs all seven
+      listings, commits the edit and re-runs the comparison. Add `--yes` for an unattended run;
+      with no drift it publishes nothing
+- [ ] It should end with `published and verified: Play now serves the regenerated listings`
 - [ ] Any open drift issue closes on the next scheduled run; close it by hand only after
       confirming the live pages show the new copy
 

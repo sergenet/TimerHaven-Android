@@ -59,8 +59,9 @@ Seven locales live under `fastlane/metadata/android/<locale>/`, one folder each 
 The copy is generated, not hand-edited:
 
 ```bash
-python tools/write_store_listings.py      # regenerate only the listings
-python tools/prepare_release.py           # version bump + listings + drift check
+python tools/write_store_listings.py              # regenerate only the listings
+python tools/prepare_release.py                   # version bump + listings + drift check
+python tools/prepare_release.py --publish         # ...and push drift to Play, after confirming
 ```
 
 That rewrites every file from the table in the script, then exits non-zero if any value is
@@ -110,9 +111,9 @@ for a short-lived token scoped to `androidpublisher`; no other Google API has to
 1. Bump `versionCode`/`versionName` in [app/build.gradle.kts](app/build.gradle.kts).
 2. `./gradlew bundleRelease` — the drift check runs first and fails the build on drift.
 3. Upload the AAB in the Play Console.
-4. Publish any listing changes, then run `python tools/check_store_listings.py` to confirm the
-   live copy matches the repo again.
+4. `python tools/prepare_release.py --publish` publishes any listing changes to Play and
+   re-runs the comparison to confirm the live copy matches the repo again.
 
-Listing copy is published through the Play Developer API with the same service account (open an
-edit, `PUT` the listing per locale, commit the edit). There is no publisher script in the repo,
-so that step is done by hand or by tooling outside this repository.
+Publishing goes through the Play Developer API with the same service account: one edit, a `PUT`
+per locale, then the edit is committed — all of that is what `--publish` does, so the store copy
+is never written by hand.
