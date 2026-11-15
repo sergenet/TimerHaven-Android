@@ -3,6 +3,7 @@ name: Store listing drift
 # Fails when the copy in fastlane/metadata/android and the copy Google Play is
 # actually serving disagree — for example after someone edits a listing in the
 # Play Console, or after a translation is committed but never published.
+# Runs daily, on demand, and on every pull request into main.
 #
 # Credentials the runner needs
 # ---------------------------
@@ -33,19 +34,29 @@ on:
     # Daily at 06:17 UTC, off the hour to avoid the cron rush.
     - cron: "17 6 * * *"
   workflow_dispatch:
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
-  group: store-listing-drift
-  cancel-in-progress: false
+  # Superseded pushes to the same branch cancel their own earlier run, while
+  # the daily schedule and other pull requests keep their own groups.
+  group: store-listing-drift-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   drift:
     name: fastlane vs live Play
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Pull requests opened from a fork do not receive repository secrets, so
+    # the check could never authenticate there. Skipping is honest; failing
+    # would blame the author for something they cannot fix.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
 
