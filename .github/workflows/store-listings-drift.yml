@@ -8,6 +8,10 @@ name: Store listing drift
 # that edits fastlane copy is expected to differ from Play until that copy is
 # published, and that should not block the merge.
 #
+# When a daily or on-demand run finds drift it also opens one issue titled
+# "Store listing drift detected" (and comments on that same issue instead of
+# filing another). The next run that matches fastlane closes it again.
+#
 # Credentials the runner needs
 # ---------------------------
 # One repository secret:
@@ -42,6 +46,8 @@ on:
 
 permissions:
   contents: read
+  # Needed to open, comment on and close the drift issue.
+  issues: write
 
 concurrency:
   # Superseded pushes to the same branch cancel their own earlier run, while
@@ -109,7 +115,9 @@ jobs:
       - name: Write the drift summary
         if: always() && steps.check.outcome != 'skipped'
         run: |
-          python - "$RUNNER_TEMP/drift.json" <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          # The report is rendered once and reused: on the console, in the job
+          # summary, and (for a failing run) as the body of the drift issue.
+          python - "$RUNNER_TEMP/drift.json" > "$RUNNER_TEMP/drift.md" <<'PY'
           import json
           import os
           import sys
@@ -187,6 +195,8 @@ jobs:
                             % (missing, "" if missing == 1 else "s"))
               print("</details>\n")
           PY
+          cat "$RUNNER_TEMP/drift.md"
+          cat "$RUNNER_TEMP/drift.md" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Report drift
         if: steps.check.outputs.status != '0'
@@ -203,3 +213,42 @@ jobs:
           locales=$(python -c 'import json, sys; print(", ".join((json.load(open(sys.argv[1], encoding="utf-8")).get("drifted") or [])))' "$RUNNER_TEMP/drift.json" 2>/dev/null || true)
           echo "::$level title=Store listing drift::fastlane and the live Play listing disagree${locales:+ for $locales}. See the job summary for the differing lines."
           exit $code
+
+      # Pull requests already surface the warning in their own UI, so the issue
+      # is only for runs nobody is necessarily watching.
+      - name: Raise or resolve the drift issue
+        if: always() && github.event_name != 'pull_request' && steps.check.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STATUS: ${{ steps.check.outputs.status }}
+        run: |
+          title="Store listing drift detected"
+          existing=$(gh issue list --state open --limit 100 --json number,title \
+            --jq "[.[] | select(.title == \"$title\")][0].number // empty")
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+          if [ "$STATUS" = "0" ]; then
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --body "Listings match fastlane again as of $run_url."
+              gh issue close "$existing"
+              echo "Closed issue #$existing: the listings match again."
+            else
+              echo "No drift and no open issue; nothing to do."
+            fi
+            exit 0
+          fi
+
+          body="$RUNNER_TEMP/drift.md"
+          {
+            printf '\n---\n'
+            printf 'Detected by the store listing drift check on %s.\n' "$(date -u +'%Y-%m-%d %H:%M UTC')"
+            printf 'Workflow run: %s\n' "$run_url"
+            printf 'This issue closes itself on the next run that matches fastlane.\n'
+          } >> "$body"
+
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file "$body"
+            echo "Added a comment to issue #$existing."
+          else
+            gh issue create --title "$title" --body-file "$body"
+          fi
