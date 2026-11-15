@@ -24,7 +24,7 @@ Pomodoro notifications, a Pomodoro widget and launcher shortcuts for single tool
 | [app](app) | the application module |
 | [app/src/main/assets](app/src/main/assets) | the web app bundle the WebView serves (shared with the website) |
 | [app/src/main/java/com/sergenet/TimerHavenApp](app/src/main/java/com/sergenet/TimerHavenApp) | Kotlin sources: activities, foreground service, widget |
-| [tools](tools) | store-listing generator and drift check |
+| [tools](tools) | store-listing generator, drift check and release prep |
 | [fastlane/metadata/android](fastlane/metadata/android) | Play listing copy, one folder per locale |
 | [.github/workflows](.github/workflows) | CI |
 
@@ -59,7 +59,8 @@ Seven locales live under `fastlane/metadata/android/<locale>/`, one folder each 
 The copy is generated, not hand-edited:
 
 ```bash
-python tools/write_store_listings.py
+python tools/write_store_listings.py      # regenerate only the listings
+python tools/prepare_release.py           # version bump + listings + drift check
 ```
 
 That rewrites every file from the table in the script, then exits non-zero if any value is

@@ -12,13 +12,14 @@ Reasoning and tool details live in [README.md](README.md).
 
 ## 2. Decide what the release contains
 
-- [ ] Bump `versionCode` in [app/build.gradle.kts](app/build.gradle.kts) — it must be higher
-      than the code already live on Play, and Play never re-accepts an old one
-- [ ] Set `versionName` to what this release is called
-- [ ] Listing copy changing? Edit [tools/write_store_listings.py](tools/write_store_listings.py),
-      run `python tools/write_store_listings.py`, and commit the regenerated files under
+- [ ] Run `python tools/prepare_release.py --version-name X.Y.Z` — it bumps `versionCode` by
+      one (Play never re-accepts an old one), regenerates the listings and runs the drift check.
+      `--dry-run` shows the bump without writing anything
+- [ ] Listing copy changing? Edit [tools/write_store_listings.py](tools/write_store_listings.py)
+      before running it, and commit the regenerated files under
       [fastlane/metadata/android](fastlane/metadata/android). Never hand-edit those `.txt` files;
       the next generator run overwrites them
+- [ ] Commit the version bump and any listing changes together
 
 ## 3. Build the bundle
 
