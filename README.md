@@ -104,6 +104,8 @@ for a short-lived token scoped to `androidpublisher`; no other Google API has to
 
 ## Publishing a release
 
+[RELEASE.md](RELEASE.md) has the full ordered checklist; the shape of it:
+
 1. Bump `versionCode`/`versionName` in [app/build.gradle.kts](app/build.gradle.kts).
 2. `./gradlew bundleRelease` — the drift check runs first and fails the build on drift.
 3. Upload the AAB in the Play Console.
