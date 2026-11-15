@@ -39,8 +39,8 @@ android {
         applicationId = "com.sergenet.TimerHavenApp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 49
-        versionName = "1.1.2"
+        versionCode = 51
+        versionName = "1.1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

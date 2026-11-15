@@ -99,6 +99,17 @@ def call(token, url, method="GET", body=None):
         return response.status, (json.loads(raw) if raw else None)
 
 
+def used_version_codes(token):
+    """Every versionCode Play already holds, which a new upload cannot reuse."""
+    _, edit = call(token, PLAY + "/edits", method="POST", body={})
+    edit_id = edit["id"]
+    try:
+        _, bundles = call(token, PLAY + "/edits/" + edit_id + "/bundles")
+    finally:
+        call(token, PLAY + "/edits/" + edit_id, method="DELETE")
+    return sorted(int(bundle["versionCode"]) for bundle in bundles.get("bundles") or [])
+
+
 def ask(question, assume_yes):
     """Confirm a store change; unattended runs must opt in with --yes."""
     if assume_yes:
@@ -158,7 +169,17 @@ def main(argv=None):
     current_code = int(find_one(CODE_RE, text, "versionCode")[1])
     current_name = find_one(NAME_RE, text, "versionName")[1]
 
-    new_code = args.version_code if args.version_code is not None else current_code + 1
+    token = os.environ.get("PLAY_ACCESS_TOKEN") or os.environ.get("TH_TOKEN")
+    new_code = args.version_code
+    if new_code is None:
+        # Play rejects any versionCode it has ever seen, and custom tracks can
+        # hold codes above the one in this file, so ask Play instead of adding one.
+        used = []
+        if token:
+            used = used_version_codes(token)
+        new_code = max(used + [current_code]) + 1
+        if used and used[-1] >= current_code + 1:
+            print("Play already holds versionCode %d, so the next free code is %d" % (used[-1], new_code))
     new_name = args.version_name if args.version_name is not None else current_name
     if new_code <= current_code:
         raise SystemExit(
@@ -200,7 +221,6 @@ def main(argv=None):
             print("\nnothing published: re-run with --publish to push the regenerated copy to Play")
             return 1
 
-        token = os.environ.get("PLAY_ACCESS_TOKEN") or os.environ.get("TH_TOKEN")
         if not token:
             print("\nnot publishing: set PLAY_ACCESS_TOKEN (see README) and re-run")
             return 2
