@@ -93,7 +93,7 @@ jobs:
       - name: Write the drift summary
         if: always() && steps.check.outcome != 'skipped'
         run: |
-          python - "$RUNNER_TEMP/drift.json" <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          python - "$RUNNER_TEMP/drift.json" <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           import json
           import sys
 
