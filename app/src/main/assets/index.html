@@ -341,12 +341,12 @@
 
   <main>
     <section id="recents" class="group recents" hidden>
-      <h2>Recent</h2>
+      <h2 data-i18n="recent">Recent</h2>
       <div class="grid" id="recent-grid"></div>
     </section>
 
     <section class="group" data-group>
-      <h2>Timers</h2>
+      <h2 data-i18n="timers">Timers</h2>
       <div class="grid">
         <a class="tool" href="countdown-en.html" data-tool="countdown" data-name="Countdown" data-keywords="timer alarm deadline clock">
           <svg aria-hidden="true"><use href="#i-countdown"/></svg>
@@ -372,7 +372,7 @@
     </section>
 
     <section class="group" data-group>
-      <h2>Planning</h2>
+      <h2 data-i18n="planning">Planning</h2>
       <div class="grid">
         <a class="tool" href="calendar-en.html" data-tool="calendar" data-name="Calendar" data-keywords="date month plan events">
           <svg aria-hidden="true"><use href="#i-calendar"/></svg>
@@ -393,7 +393,7 @@
     </section>
 
     <section class="group" data-group>
-      <h2>Focus</h2>
+      <h2 data-i18n="focus">Focus</h2>
       <div class="grid">
         <a class="tool" href="clipboard-manager-en.html" data-tool="clipboard-manager" data-name="Clipboard Manager" data-keywords="copy paste snippets text">
           <svg aria-hidden="true"><use href="#i-clipboard"/></svg>
@@ -414,7 +414,7 @@
     </section>
 
     <section class="group" data-group>
-      <h2>Utilities</h2>
+      <h2 data-i18n="utilities">Utilities</h2>
       <div class="grid">
         <a class="tool" href="currency-en.html" data-tool="currency" data-name="Currency Converter" data-keywords="exchange rate money dollar euro">
           <svg aria-hidden="true"><use href="#i-currency"/></svg>
@@ -448,8 +448,8 @@
   </main>
 
   <footer>
-    <a href="privacy.html">Privacy</a>
-    <a href="contact.html">Contact</a>
+    <a href="privacy.html" data-i18n="privacy">Privacy</a>
+    <a href="contact.html" data-i18n="contact">Contact</a>
   </footer>
 
   <script>
@@ -458,6 +458,223 @@
       var RECENT_KEY = 'timerhaven.recent';
       var LANG_KEY = 'timerhavenLang';
       var MAX_RECENT = 4;
+
+      // Launcher copy in every language the tools ship in. Tool entries are keyed by
+      // data-tool so a language switch repaints the menu in place, instead of waiting
+      // for the next tool to be opened.
+      var COPY = {
+        en: {
+          recent: 'Recent',
+          timers: 'Timers',
+          planning: 'Planning',
+          focus: 'Focus',
+          utilities: 'Utilities',
+          search: 'Search tools',
+          language: 'Language',
+          privacy: 'Privacy',
+          contact: 'Contact',
+          empty: 'No tool matches \u201C{q}\u201D.',
+          tools: {
+            countdown: ['Countdown', 'Time limit'],
+            pomodoro: ['Pomodoro', '25 / 5 focus'],
+            stopwatch: ['Stopwatch', 'Count up'],
+            timer: ['Task Timer', 'Log sessions'],
+            calendar: ['Calendar', 'Dates'],
+            'habit-tracker': ['Habits', 'Streaks'],
+            'meeting-planner': ['Meeting', 'Time zones'],
+            clipboard: ['Clipboard', 'Snippets'],
+            'clipboard-manager': ['Clipboard', 'Snippets'],
+            'focus-music': ['Focus Music', 'Sounds'],
+            notes: ['Notes', 'Quick notes'],
+            currency: ['Currency', 'Rates'],
+            'password-generator': ['Passwords', 'Generate'],
+            'unit-converter': ['Units', 'Convert'],
+            weather: ['Weather', 'Forecast'],
+            'world-clock': ['World Clock', 'Time zones']
+          }
+        },
+        fr: {
+          recent: 'Récents',
+          timers: 'Minuteries',
+          planning: 'Planification',
+          focus: 'Concentration',
+          utilities: 'Utilitaires',
+          search: 'Rechercher un outil',
+          language: 'Langue',
+          privacy: 'Confidentialité',
+          contact: 'Contact',
+          empty: 'Aucun outil ne correspond à « {q} ».',
+          tools: {
+            countdown: ['Compte à rebours', 'Durée limite'],
+            pomodoro: ['Pomodoro', '25 / 5 concentration'],
+            stopwatch: ['Chronomètre', 'Temps écoulé'],
+            timer: ['Minuteur de tâches', 'Sessions'],
+            calendar: ['Calendrier', 'Dates'],
+            'habit-tracker': ['Habitudes', 'Séries'],
+            'meeting-planner': ['Réunions', 'Fuseaux horaires'],
+            clipboard: ['Presse-papiers', 'Extraits'],
+            'clipboard-manager': ['Presse-papiers', 'Extraits'],
+            'focus-music': ['Musique de concentration', 'Sons'],
+            notes: ['Notes', 'Notes rapides'],
+            currency: ['Devises', 'Taux'],
+            'password-generator': ['Mots de passe', 'Générer'],
+            'unit-converter': ['Unités', 'Convertir'],
+            weather: ['Météo', 'Prévisions'],
+            'world-clock': ['Horloge mondiale', 'Fuseaux horaires']
+          }
+        },
+        es: {
+          recent: 'Recientes',
+          timers: 'Temporizadores',
+          planning: 'Planificación',
+          focus: 'Concentración',
+          utilities: 'Utilidades',
+          search: 'Buscar herramientas',
+          language: 'Idioma',
+          privacy: 'Privacidad',
+          contact: 'Contacto',
+          empty: 'Ninguna herramienta coincide con «{q}».',
+          tools: {
+            countdown: ['Cuenta regresiva', 'Tiempo límite'],
+            pomodoro: ['Pomodoro', '25 / 5 enfoque'],
+            stopwatch: ['Cronómetro', 'Tiempo transcurrido'],
+            timer: ['Temporizador de tareas', 'Sesiones'],
+            calendar: ['Calendario', 'Fechas'],
+            'habit-tracker': ['Hábitos', 'Rachas'],
+            'meeting-planner': ['Reuniones', 'Zonas horarias'],
+            clipboard: ['Portapapeles', 'Fragmentos'],
+            'clipboard-manager': ['Portapapeles', 'Fragmentos'],
+            'focus-music': ['Música de concentración', 'Sonidos'],
+            notes: ['Notas', 'Notas rápidas'],
+            currency: ['Moneda', 'Tipos de cambio'],
+            'password-generator': ['Contraseñas', 'Generar'],
+            'unit-converter': ['Unidades', 'Convertir'],
+            weather: ['Clima', 'Pronóstico'],
+            'world-clock': ['Reloj mundial', 'Zonas horarias']
+          }
+        },
+        de: {
+          recent: 'Zuletzt',
+          timers: 'Timer',
+          planning: 'Planung',
+          focus: 'Fokus',
+          utilities: 'Werkzeuge',
+          search: 'Tools durchsuchen',
+          language: 'Sprache',
+          privacy: 'Datenschutz',
+          contact: 'Kontakt',
+          empty: 'Kein Tool passt zu „{q}“.',
+          tools: {
+            countdown: ['Countdown', 'Zeitlimit'],
+            pomodoro: ['Pomodoro', '25 / 5 Fokus'],
+            stopwatch: ['Stoppuhr', 'Zeitmessung'],
+            timer: ['Aufgaben-Timer', 'Sitzungen'],
+            calendar: ['Kalender', 'Termine'],
+            'habit-tracker': ['Gewohnheiten', 'Serien'],
+            'meeting-planner': ['Meetings', 'Zeitzonen'],
+            clipboard: ['Zwischenablage', 'Ausschnitte'],
+            'clipboard-manager': ['Zwischenablage', 'Ausschnitte'],
+            'focus-music': ['Fokus-Musik', 'Klänge'],
+            notes: ['Notizen', 'Schnelle Notizen'],
+            currency: ['Währungen', 'Kurse'],
+            'password-generator': ['Passwörter', 'Erzeugen'],
+            'unit-converter': ['Einheiten', 'Umrechnen'],
+            weather: ['Wetter', 'Vorhersage'],
+            'world-clock': ['Weltuhr', 'Zeitzonen']
+          }
+        },
+        ru: {
+          recent: 'Недавние',
+          timers: 'Таймеры',
+          planning: 'Планирование',
+          focus: 'Фокус',
+          utilities: 'Инструменты',
+          search: 'Поиск инструментов',
+          language: 'Язык',
+          privacy: 'Конфиденциальность',
+          contact: 'Контакты',
+          empty: 'Ни один инструмент не соответствует «{q}».',
+          tools: {
+            countdown: ['Обратный отсчёт', 'Лимит времени'],
+            pomodoro: ['Помодоро', '25 / 5 фокус'],
+            stopwatch: ['Секундомер', 'Отсчёт времени'],
+            timer: ['Таймер задач', 'Сессии'],
+            calendar: ['Календарь', 'Даты'],
+            'habit-tracker': ['Привычки', 'Серии'],
+            'meeting-planner': ['Встречи', 'Часовые пояса'],
+            clipboard: ['Буфер обмена', 'Фрагменты'],
+            'clipboard-manager': ['Буфер обмена', 'Фрагменты'],
+            'focus-music': ['Музыка для фокуса', 'Звуки'],
+            notes: ['Заметки', 'Быстрые заметки'],
+            currency: ['Валюта', 'Курсы'],
+            'password-generator': ['Пароли', 'Создать'],
+            'unit-converter': ['Единицы', 'Перевод'],
+            weather: ['Погода', 'Прогноз'],
+            'world-clock': ['Мировые часы', 'Часовые пояса']
+          }
+        },
+        el: {
+          recent: 'Πρόσφατα',
+          timers: 'Χρονόμετρα',
+          planning: 'Προγραμματισμός',
+          focus: 'Εστίαση',
+          utilities: 'Εργαλεία',
+          search: 'Αναζήτηση εργαλείων',
+          language: 'Γλώσσα',
+          privacy: 'Απόρρητο',
+          contact: 'Επικοινωνία',
+          empty: 'Κανένα εργαλείο δεν ταιριάζει με «{q}».',
+          tools: {
+            countdown: ['Αντίστροφη μέτρηση', 'Όριο χρόνου'],
+            pomodoro: ['Πομόντορο', '25 / 5 εστίαση'],
+            stopwatch: ['Χρονόμετρο', 'Μέτρηση χρόνου'],
+            timer: ['Χρονόμετρο εργασιών', 'Συνεδρίες'],
+            calendar: ['Ημερολόγιο', 'Ημερομηνίες'],
+            'habit-tracker': ['Συνήθειες', 'Σερί'],
+            'meeting-planner': ['Συναντήσεις', 'Ζώνες ώρας'],
+            clipboard: ['Πρόχειρο', 'Αποσπάσματα'],
+            'clipboard-manager': ['Πρόχειρο', 'Αποσπάσματα'],
+            'focus-music': ['Μουσική εστίασης', 'Ήχοι'],
+            notes: ['Σημειώσεις', 'Γρήγορες σημειώσεις'],
+            currency: ['Νόμισμα', 'Ισοτιμίες'],
+            'password-generator': ['Κωδικοί', 'Δημιουργία'],
+            'unit-converter': ['Μονάδες', 'Μετατροπή'],
+            weather: ['Καιρός', 'Πρόβλεψη'],
+            'world-clock': ['Παγκόσμιο ρολόι', 'Ζώνες ώρας']
+          }
+        },
+        ar: {
+          dir: 'rtl',
+          recent: 'الأخيرة',
+          timers: 'المؤقتات',
+          planning: 'التخطيط',
+          focus: 'التركيز',
+          utilities: 'الأدوات',
+          search: 'البحث عن الأدوات',
+          language: 'اللغة',
+          privacy: 'الخصوصية',
+          contact: 'اتصل بنا',
+          empty: 'لا توجد أداة تطابق «{q}».',
+          tools: {
+            countdown: ['العد التنازلي', 'حد زمني'],
+            pomodoro: ['بومودورو', 'تركيز 25 / 5'],
+            stopwatch: ['ساعة توقيت', 'قياس الوقت'],
+            timer: ['مؤقت المهام', 'الجلسات'],
+            calendar: ['التقويم', 'التواريخ'],
+            'habit-tracker': ['العادات', 'السلاسل'],
+            'meeting-planner': ['الاجتماعات', 'المناطق الزمنية'],
+            clipboard: ['الحافظة', 'مقتطفات'],
+            'clipboard-manager': ['الحافظة', 'مقتطفات'],
+            'focus-music': ['موسيقى التركيز', 'أصوات'],
+            notes: ['ملاحظات', 'ملاحظات سريعة'],
+            currency: ['العملات', 'الأسعار'],
+            'password-generator': ['كلمات المرور', 'إنشاء'],
+            'unit-converter': ['الوحدات', 'تحويل'],
+            weather: ['الطقس', 'التوقعات'],
+            'world-clock': ['ساعة عالمية', 'المناطق الزمنية']
+          }
+        }
+      };
 
       var input = document.getElementById('q');
       var empty = document.getElementById('empty');
@@ -485,12 +702,46 @@
         return LANGS.indexOf(device) !== -1 ? device : 'en';
       }
 
-      function rewriteLinks(lang) {
+      function copyFor(lang) {
+        return COPY[lang] || COPY.en;
+      }
+
+      // Repaint every piece of menu copy that is not a tool tile.
+      function applyCopy(copy) {
+        document.documentElement.lang = activeLang;
+        document.documentElement.dir = copy.dir || 'ltr';
+        langSelect.value = activeLang;
+        langSelect.setAttribute('aria-label', copy.language);
+        input.placeholder = copy.search;
+        input.setAttribute('aria-label', copy.search);
+
+        var labeled = document.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < labeled.length; i++) {
+          var key = labeled[i].getAttribute('data-i18n');
+          if (copy[key]) labeled[i].textContent = copy[key];
+        }
+
         tiles.forEach(function (tile) {
-          tile.setAttribute('href', tile.getAttribute('data-tool') + '-' + lang + '.html');
+          var entry = copy.tools[tile.getAttribute('data-tool')];
+          if (!entry) return;
+          var name = tile.querySelector('.name');
+          var hint = tile.querySelector('.hint');
+          if (name) name.textContent = entry[0];
+          if (hint) hint.textContent = entry[1];
+          tile.setAttribute('data-name', entry[0]);
         });
-        document.documentElement.lang = lang;
-        langSelect.value = lang;
+      }
+
+      // One entry point for both the initial paint and the dropdown change, so the
+      // menu never keeps the previous language while the links move ahead.
+      function setLanguage(lang) {
+        activeLang = LANGS.indexOf(lang) !== -1 ? lang : 'en';
+        tiles.forEach(function (tile) {
+          tile.setAttribute('href', tile.getAttribute('data-tool') + '-' + activeLang + '.html');
+        });
+        applyCopy(copyFor(activeLang));
+        renderRecents();
+        filter();
       }
 
       function toolById(id) {
@@ -556,7 +807,7 @@
 
         if (query && visible === 0) {
           empty.hidden = false;
-          empty.textContent = 'No tool matches \u201C' + input.value.trim() + '\u201D.';
+          empty.textContent = copyFor(activeLang).empty.replace('{q}', input.value.trim());
         } else {
           empty.hidden = true;
         }
@@ -570,8 +821,7 @@
       langSelect.addEventListener('change', function () {
         var lang = LANGS.indexOf(langSelect.value) !== -1 ? langSelect.value : 'en';
         write(LANG_KEY, lang);
-        rewriteLinks(lang);
-        renderRecents();
+        setLanguage(lang);
       });
 
       input.addEventListener('input', filter);
@@ -580,9 +830,15 @@
         if (event.key === 'Escape') { input.value = ''; filter(); }
       });
 
-      rewriteLinks(currentLang());
-      renderRecents();
-      filter();
+      var activeLang = currentLang();
+      setLanguage(activeLang);
+
+      // A tool's own selector can change the stored language while this page is
+      // cached; repaint on restore so the menu never lags behind the tools.
+      window.addEventListener('pageshow', function () {
+        var stored = currentLang();
+        if (stored !== activeLang) setLanguage(stored);
+      });
     })();
   </script>
 </body>
